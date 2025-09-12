@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  oracle:
+    image: gvenzl/oracle-free:latest
+    container_name: oracle_db
+    ports:
+      - "1521:1521"
+    environment:
+      - ORACLE_PASSWORD=qwer1234
+      - APP_USER=appuser
+      - APP_USER_PASSWORD=appuserpass
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+volumes:
+  oracle-data:
