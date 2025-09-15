@@ -10,30 +10,50 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import com.example.util.JwtFilter;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
+@RequiredArgsConstructor
 public class SecurityConfig {
+	
+	private final JwtFilter jwtFilter;
+    private final JwtLoginSuccessHandler jwtLoginSuccessHandler;
+	
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            .authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
-                .requestMatchers(new AntPathRequestMatcher("/**")).permitAll())
-            .headers((headers) -> headers
-                    .addHeaderWriter(new XFrameOptionsHeaderWriter(
-                        XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)))
-            .formLogin((formLogin) -> formLogin
-                    .loginPage("/user/login")
-                    .defaultSuccessUrl("/"))
-            .logout((logout) -> logout
-                    .logoutRequestMatcher(new AntPathRequestMatcher("/user/logout"))
-                    .logoutSuccessUrl("/")
-                    .invalidateHttpSession(true))
+    	http
+        .csrf(csrf -> csrf.disable()) // 과제면 편의상 비활성(폼 CSRF 쓰면 유지)
+        .headers(headers -> headers
+            .addHeaderWriter(new XFrameOptionsHeaderWriter(
+                XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)))
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/user/login", "/user/signup", "/login", "/css/**", "/js/**").permitAll()
+            .anyRequest().authenticated()
+        )
+        .formLogin(form -> form
+            .loginPage("/user/login")
+            .loginProcessingUrl("/login")
+            .successHandler(jwtLoginSuccessHandler)
+            
+        )
+        .logout(logout -> logout
+            .logoutRequestMatcher(new AntPathRequestMatcher("/user/logout"))
+            .logoutSuccessUrl("/")
+            .invalidateHttpSession(true)
+        )
+        
         ;
-        return http.build();
+
+    	http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+    	return http.build();
     }
     
     @Bean
