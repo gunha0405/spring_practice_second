@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import com.example.DataNotFoundException;
 import com.example.answer.AnswerRepository;
+import com.example.user.SiteUser;
+
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -37,10 +39,11 @@ public class QuestionService {
         }
     }
     
-    public void create(String subject, String content) {
+    public void create(String subject, String content, SiteUser user) {
         Question q = new Question();
         q.setSubject(subject);
         q.setContent(content);
+        q.setAuthor(user);
         q.setCreateDate(LocalDateTime.now());
         this.questionRepository.save(q);
     }
