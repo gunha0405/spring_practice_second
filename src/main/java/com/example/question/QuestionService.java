@@ -9,12 +9,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.example.DataNotFoundException;
+import com.example.answer.Answer;
 import com.example.answer.AnswerRepository;
 import com.example.user.SiteUser;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -48,11 +56,11 @@ public class QuestionService {
         this.questionRepository.save(q);
     }
     
-    public Page<Question> getList(int page) {
-    	List<Sort.Order> sorts = new ArrayList<>();
+    public Page<Question> getList(int page, String kw) {
+        List<Sort.Order> sorts = new ArrayList<>();
         sorts.add(Sort.Order.desc("createDate"));
         Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
-        return this.questionRepository.findAll(pageable);
+        return this.questionRepository.findAllByKeyword(kw, pageable);
     }
     
     public void modify(Question question, String subject, String content) {
@@ -70,5 +78,6 @@ public class QuestionService {
         question.getVoter().add(siteUser);
         this.questionRepository.save(question);
     }
+    
     
 }

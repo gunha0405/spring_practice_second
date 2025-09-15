@@ -30,7 +30,7 @@ public class Question {
     @Column(length = 200)
     private String subject;
 
-    @Column(columnDefinition = "CLOB")
+    @Column(length = 4000)
     private String content;
 
     private LocalDateTime createDate;
