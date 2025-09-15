@@ -21,7 +21,7 @@ public class Answer {
     @GeneratedValue(strategy = GenerationType.IDENTITY) 
     private Integer id;
 
-    @Column(columnDefinition = "TEXT") 
+    @Column(columnDefinition = "CLOB") 
     private String content; 
 
     private LocalDateTime createDate; 

@@ -26,7 +26,7 @@ public class Question {
     @Column(length = 200)
     private String subject;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "CLOB")
     private String content;
 
     private LocalDateTime createDate;
