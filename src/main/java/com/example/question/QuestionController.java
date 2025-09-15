@@ -31,4 +31,6 @@ public class QuestionController {
         return "question_detail";
     }
     
+    
+    
 }
