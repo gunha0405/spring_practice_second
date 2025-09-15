@@ -12,6 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.example.answer.AnswerRepository;
+import com.example.question.QuestionRepository;
+
 import jakarta.transaction.Transactional;
 
 @SpringBootTest
