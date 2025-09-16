@@ -1,0 +1,39 @@
+<nav th:fragment="navbarFragment" class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">SBB</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                <!-- 로그인 / 로그아웃 -->
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="isAnonymous()" th:href="@{/user/login}">로그인</a>
+                    <a class="nav-link" sec:authorize="isAuthenticated()" th:href="@{/user/logout}">로그아웃</a>
+                </li>
+
+                <!-- 회원가입 -->
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/user/signup}">회원가입</a>
+                </li>
+				
+				<!-- 내 프로필 -->
+				<li class="nav-item">
+				    <a class="nav-link" th:href="@{/user/profile}">내 프로필</a>
+				</li>				
+
+                <!-- 비밀번호 찾기 -->
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/user/forgot-password}">비밀번호 찾기</a>
+                </li>
+
+                <!-- 비밀번호 변경 (로그인 사용자만 보이도록) -->
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="isAuthenticated()" th:href="@{/user/change-password}">비밀번호 변경</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
