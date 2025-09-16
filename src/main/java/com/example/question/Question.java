@@ -43,6 +43,9 @@ public class Question {
     
     private LocalDateTime modifyDate;
     
+    @Column(nullable = false)
+    private int views = 0;
+    
     @OneToMany(mappedBy = "question", cascade = CascadeType.REMOVE) 
     private List<Answer> answerList; 
     

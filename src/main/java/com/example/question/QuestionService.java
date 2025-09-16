@@ -26,6 +26,7 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -122,6 +123,14 @@ public class QuestionService {
     
     public List<Question> getUserQuestions(SiteUser user) {
         return questionRepository.findByAuthor(user);
+    }
+    
+    @Transactional
+    public void increaseViewCount(Integer id) {
+        Question q = questionRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("question not found"));
+        q.setViews(q.getViews() + 1);
+        questionRepository.save(q);
     }
     
 }
