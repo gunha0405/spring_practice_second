@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.example.DataNotFoundException;
 import com.example.answer.Answer;
 import com.example.answer.AnswerRepository;
+import com.example.strategy.QuestionSearchManager;
 import com.example.user.SiteUser;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -32,6 +33,8 @@ public class QuestionService {
     private final AnswerRepository answerRepository;
 
     private final QuestionRepository questionRepository;
+    
+    private final QuestionSearchManager manager;
 
 
     public List<Question> getList() {
@@ -79,5 +82,9 @@ public class QuestionService {
         this.questionRepository.save(question);
     }
     
+    public Page<Question> search(int page, String subject, String value) {
+        Page<Question> paging = manager.findByUserInput(page, subject, value);
+        return paging;
+    }
     
 }

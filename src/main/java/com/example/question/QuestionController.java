@@ -31,8 +31,6 @@ public class QuestionController {
 
 	private final QuestionService questionService;
 
-   
-
 	@GetMapping("/list")
     public String list(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "kw", defaultValue = "") String kw) {
@@ -41,6 +39,16 @@ public class QuestionController {
         model.addAttribute("kw", kw);
         return "question_list";
     }
+	
+	@GetMapping("/customerSearch")
+	public String customerSearch(Model model,
+	     @RequestParam(defaultValue = "0") int page,
+	     @RequestParam String subject,
+	     @RequestParam String value) {
+	  Page<Question> paging = questionService.search(page, subject, value);
+	  model.addAttribute("paging", paging);
+	  return "question_list";
+	}
     
     @GetMapping(value = "/detail/{id}")
     public String detail(Model model, @PathVariable("id") Integer id, AnswerForm answerForm) {
