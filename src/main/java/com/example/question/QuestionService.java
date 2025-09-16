@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 import com.example.DataNotFoundException;
 import com.example.answer.Answer;
 import com.example.answer.AnswerRepository;
+import com.example.strategy.QuestionSearchManager;
 import com.example.user.SiteUser;
+import com.example.util.TenantContext;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -32,6 +34,8 @@ public class QuestionService {
     private final AnswerRepository answerRepository;
 
     private final QuestionRepository questionRepository;
+    
+    private final QuestionSearchManager manager;
 
 
     public List<Question> getList() {
@@ -47,12 +51,27 @@ public class QuestionService {
         }
     }
     
-    public void create(String subject, String content, SiteUser user) {
+
+    public void create(String subject, String content, String value, SiteUser user) {
+        String tenant = Optional.ofNullable(TenantContext.get())
+                                .orElseThrow(() -> new IllegalStateException("No tenant"));
+
         Question q = new Question();
         q.setSubject(subject);
         q.setContent(content);
         q.setAuthor(user);
         q.setCreateDate(LocalDateTime.now());
+
+        if ("A".equalsIgnoreCase(tenant)) {
+            q.setKeyword(value);
+            q.setHashtag(null);
+        } else if ("B".equalsIgnoreCase(tenant)) {
+            q.setHashtag(value);
+            q.setKeyword(null);
+        } else {
+            throw new IllegalStateException("Unsupported tenant: " + tenant);
+        }
+
         this.questionRepository.save(q);
     }
     
@@ -79,5 +98,9 @@ public class QuestionService {
         this.questionRepository.save(question);
     }
     
+    public Page<Question> search(int page, String subject, String value) {
+        Page<Question> paging = manager.findByUserInput(page, subject, value);
+        return paging;
+    }
     
 }

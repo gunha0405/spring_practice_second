@@ -15,4 +15,7 @@ public class QuestionForm {
 
     @NotEmpty(message="내용은 필수항목입니다.")
     private String content;
+    
+    @NotEmpty(message="키워드 혹은 해시태그를 입력해주세요.")
+    private String value;
 }

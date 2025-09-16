@@ -19,6 +19,8 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.answer.AnswerForm;
 import com.example.user.SiteUser;
 import com.example.user.UserService;
+import com.example.util.TenantContext;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -31,8 +33,6 @@ public class QuestionController {
 
 	private final QuestionService questionService;
 
-   
-
 	@GetMapping("/list")
     public String list(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "kw", defaultValue = "") String kw) {
@@ -41,6 +41,16 @@ public class QuestionController {
         model.addAttribute("kw", kw);
         return "question_list";
     }
+	
+	@GetMapping("/customerSearch")
+	public String customerSearch(Model model,
+	     @RequestParam(name = "page", defaultValue = "0") int page,
+	     @RequestParam(name = "subject") String subject,
+	     @RequestParam(name = "value") String value) {
+	  Page<Question> paging = questionService.search(page, subject, value);
+	  model.addAttribute("paging", paging);
+	  return "question_list";
+	}
     
     @GetMapping(value = "/detail/{id}")
     public String detail(Model model, @PathVariable("id") Integer id, AnswerForm answerForm) {
@@ -51,19 +61,31 @@ public class QuestionController {
     
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/create")
-    public String questionCreate(QuestionForm questionForm) {
+    public String questionCreate(Model model, QuestionForm questionForm) {
+    	model.addAttribute("tenant", TenantContext.get());
         return "question_form";
     }
     
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/create")
-    public String questionCreate(@Valid QuestionForm questionForm, BindingResult bindingResult, Principal principal) {
+    public String questionCreate(@Valid QuestionForm form,
+                                 BindingResult bindingResult,
+                                 Principal principal,
+                                 Model model) {
         if (bindingResult.hasErrors()) {
+            model.addAttribute("tenant", TenantContext.get());
             return "question_form";
         }
-        this.questionService.create(questionForm.getSubject(), questionForm.getContent(), this.userService.getUser(principal.getName()));
+        SiteUser user = this.userService.getUser(principal.getName());
+        this.questionService.create(
+            form.getSubject(),
+            form.getContent(),
+            form.getValue(),
+            user
+        );
         return "redirect:/question/list";
     }
+
     
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/modify/{id}")
