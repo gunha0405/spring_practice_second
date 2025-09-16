@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.example.DataNotFoundException;
 import com.example.answer.Answer;
 import com.example.answer.AnswerRepository;
+import com.example.category.Category;
 import com.example.strategy.QuestionSearchManager;
 import com.example.user.SiteUser;
 import com.example.util.TenantContext;
@@ -52,7 +53,7 @@ public class QuestionService {
     }
     
 
-    public void create(String subject, String content, String value, SiteUser user) {
+    public void create(String subject, String content, String value, SiteUser user, Category category) {
         String tenant = Optional.ofNullable(TenantContext.get())
                                 .orElseThrow(() -> new IllegalStateException("No tenant"));
 
@@ -60,6 +61,7 @@ public class QuestionService {
         q.setSubject(subject);
         q.setContent(content);
         q.setAuthor(user);
+        q.setCategory(category);
         q.setCreateDate(LocalDateTime.now());
 
         if ("A".equalsIgnoreCase(tenant)) {
@@ -82,10 +84,25 @@ public class QuestionService {
         return this.questionRepository.findAllByKeyword(kw, pageable);
     }
     
-    public void modify(Question question, String subject, String content) {
+    public void modify(Question question, String subject, String content, String value, Category category) {
+        String tenant = Optional.ofNullable(TenantContext.get())
+                                .orElseThrow(() -> new IllegalStateException("No tenant"));
+
         question.setSubject(subject);
         question.setContent(content);
+        question.setCategory(category);
         question.setModifyDate(LocalDateTime.now());
+
+        if ("A".equalsIgnoreCase(tenant)) {
+            question.setKeyword(value);
+            question.setHashtag(null);
+        } else if ("B".equalsIgnoreCase(tenant)) {
+            question.setHashtag(value);
+            question.setKeyword(null);
+        } else {
+            throw new IllegalStateException("Unsupported tenant: " + tenant);
+        }
+
         this.questionRepository.save(question);
     }
     
