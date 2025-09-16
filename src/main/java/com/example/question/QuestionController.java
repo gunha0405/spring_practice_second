@@ -19,6 +19,8 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.answer.AnswerForm;
 import com.example.user.SiteUser;
 import com.example.user.UserService;
+import com.example.util.TenantContext;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -42,9 +44,9 @@ public class QuestionController {
 	
 	@GetMapping("/customerSearch")
 	public String customerSearch(Model model,
-	     @RequestParam(defaultValue = "0") int page,
-	     @RequestParam String subject,
-	     @RequestParam String value) {
+	     @RequestParam(name = "page", defaultValue = "0") int page,
+	     @RequestParam(name = "subject") String subject,
+	     @RequestParam(name = "value") String value) {
 	  Page<Question> paging = questionService.search(page, subject, value);
 	  model.addAttribute("paging", paging);
 	  return "question_list";
@@ -59,19 +61,31 @@ public class QuestionController {
     
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/create")
-    public String questionCreate(QuestionForm questionForm) {
+    public String questionCreate(Model model, QuestionForm questionForm) {
+    	model.addAttribute("tenant", TenantContext.get());
         return "question_form";
     }
     
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/create")
-    public String questionCreate(@Valid QuestionForm questionForm, BindingResult bindingResult, Principal principal) {
+    public String questionCreate(@Valid QuestionForm form,
+                                 BindingResult bindingResult,
+                                 Principal principal,
+                                 Model model) {
         if (bindingResult.hasErrors()) {
+            model.addAttribute("tenant", TenantContext.get());
             return "question_form";
         }
-        this.questionService.create(questionForm.getSubject(), questionForm.getContent(), this.userService.getUser(principal.getName()));
+        SiteUser user = this.userService.getUser(principal.getName());
+        this.questionService.create(
+            form.getSubject(),
+            form.getContent(),
+            form.getValue(),
+            user
+        );
         return "redirect:/question/list";
     }
+
     
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/modify/{id}")

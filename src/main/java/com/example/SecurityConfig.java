@@ -30,7 +30,6 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     	http
-        .csrf(csrf -> csrf.disable()) // 과제면 편의상 비활성(폼 CSRF 쓰면 유지)
         .headers(headers -> headers
             .addHeaderWriter(new XFrameOptionsHeaderWriter(
                 XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)))

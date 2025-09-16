@@ -29,6 +29,10 @@ public class Question {
 
     @Column(length = 200)
     private String subject;
+    
+    private String hashtag;
+    
+    private String keyword;
 
     @Column(length = 4000)
     private String content;
