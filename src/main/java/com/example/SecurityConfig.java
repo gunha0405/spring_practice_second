@@ -47,9 +47,7 @@ public class SecurityConfig {
             .logoutRequestMatcher(new AntPathRequestMatcher("/user/logout"))
             .logoutSuccessUrl("/")
             .invalidateHttpSession(true)
-        )
-        
-        ;
+        );
 
     	http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
     	return http.build();

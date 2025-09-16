@@ -1,12 +1,18 @@
 package com.example.user;
 
+import java.security.Principal;
+
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -53,6 +59,46 @@ public class UserController {
     @GetMapping("/login")
     public String login() {
         return "login_form";
+    }
+    
+ // 비밀번호 찾기 (임시 비밀번호 발송)
+    @GetMapping("/forgot-password")
+    public String forgotPasswordForm() {
+        return "forgot_password";
+    }
+
+    @PostMapping("/forgot-password")
+    public String forgotPassword(@RequestParam("email") String email, Model model) {
+        try {
+            String message = userService.sendTemporaryPassword(email);
+            model.addAttribute("message", message);
+        } catch (IllegalArgumentException | MessagingException e) {
+            model.addAttribute("error", e.getMessage());
+        }
+        return "forgot_password";
+    }
+
+    // 비밀번호 변경
+    @GetMapping("/change-password")
+    @PreAuthorize("isAuthenticated()")
+    public String changePasswordForm() {
+        return "change_password";
+    }
+
+    @PostMapping("/change-password")
+    @PreAuthorize("isAuthenticated()")
+    public String changePassword(@RequestParam("currentPassword") String currentPassword,
+                                 @RequestParam("newPassword") String newPassword,
+                                 @RequestParam("confirmPassword") String confirmPassword,
+                                 Principal principal, Model model) {
+        try {
+            userService.changePassword(principal.getName(),
+                    currentPassword, newPassword, confirmPassword);
+            model.addAttribute("message", "비밀번호가 변경되었습니다.");
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage());
+        }
+        return "change_password";
     }
     
 }
