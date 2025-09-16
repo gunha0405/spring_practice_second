@@ -37,7 +37,6 @@ public class JwtFilter extends OncePerRequestFilter{
                 SecurityContextHolder.getContext().setAuthentication(auth);
 
                 TenantContext.set(tenant);
-                System.out.println("tenant : " + tenant);
             } catch (Exception e) {
                 SecurityContextHolder.clearContext();
             }

@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.example.answer.AnswerRepository;
+import com.example.category.Category;
+import com.example.category.CategoryRepository;
 import com.example.question.QuestionRepository;
 import com.example.question.QuestionService;
 
@@ -29,6 +31,9 @@ class SpringPracticeSecondApplicationTests {
 	
 	@Autowired
 	private QuestionService questionService;
+	
+	@Autowired
+	private CategoryRepository categoryRepository;
 	
 	@Transactional
 	@Test
@@ -108,6 +113,21 @@ class SpringPracticeSecondApplicationTests {
         
         */
 		
+		Category c1 = new Category();
+        c1.setName("질문답변");
+        categoryRepository.save(c1);
+
+        Category c2 = new Category();
+        c2.setName("강좌");
+        categoryRepository.save(c2);
+
+        Category c3 = new Category();
+        c3.setName("자유게시판");
+        categoryRepository.save(c3);
+
+        Category c4 = new Category();
+        c4.setName("공지사항");
+        categoryRepository.save(c4);
 
     }
 

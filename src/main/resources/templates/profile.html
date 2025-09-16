@@ -1,0 +1,69 @@
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>프로필</title>
+</head>
+<div layout:fragment="content" class="container my-3">
+    <h2 class="border-bottom py-2">내 프로필</h2>
+
+    <!-- 기본 정보 -->
+    <div class="card my-3">
+        <div class="card-body">
+            <h5 class="card-title" th:text="${user.username}"></h5>
+            <p class="card-text">
+                이메일: <span th:text="${user.email}"></span><br>
+                고객사 ID: <span th:text="${user.customerId}"></span>
+            </p>
+        </div>
+    </div>
+
+    <!-- 내가 작성한 질문 -->
+    <h4 class="border-bottom py-2">내 질문</h4>
+    <div th:if="${#lists.isEmpty(questionList)}">
+        <p>작성한 질문이 없습니다.</p>
+    </div>
+    <div th:each="question : ${questionList}" class="card my-2">
+        <div class="card-body">
+            <a th:href="@{|/question/detail/${question.id}|}" 
+               th:text="${question.subject}" class="card-title"></a>
+            <p class="card-text" th:text="${#strings.abbreviate(question.content, 100)}"></p>
+            <small class="text-muted" th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></small>
+        </div>
+    </div>
+
+    <!-- 내가 작성한 답변 -->
+    <h4 class="border-bottom py-2 mt-4">내 답변</h4>
+    <div th:if="${#lists.isEmpty(answerList)}">
+        <p>작성한 답변이 없습니다.</p>
+    </div>
+    <div th:each="answer : ${answerList}" class="card my-2">
+        <div class="card-body">
+            <p class="card-text" th:text="${#strings.abbreviate(answer.content, 100)}"></p>
+            <small class="text-muted" th:text="${#temporals.format(answer.createDate, 'yyyy-MM-dd HH:mm')}"></small>
+            <div>
+                <a th:href="@{|/question/detail/${answer.question.id}|}">관련 질문 보기</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 내가 작성한 댓글 -->
+    <h4 class="border-bottom py-2 mt-4">내 댓글</h4>
+    <div th:if="${#lists.isEmpty(commentList)}">
+        <p>작성한 댓글이 없습니다.</p>
+    </div>
+    <div th:each="comment : ${commentList}" class="card my-2">
+        <div class="card-body">
+            <p class="card-text" th:text="${#strings.abbreviate(comment.content, 100)}"></p>
+            <small class="text-muted" th:text="${#temporals.format(comment.createDate, 'yyyy-MM-dd HH:mm')}"></small>
+            <div>
+                <span th:if="${comment.question != null}">
+                    <a th:href="@{|/question/detail/${comment.question.id}|}">관련 질문 보기</a>
+                </span>
+                <span th:if="${comment.answer != null}">
+                    <a th:href="@{|/question/detail/${comment.answer.question.id}|}">관련 답변 보기</a>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

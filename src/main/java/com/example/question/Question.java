@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Set;
 
 import com.example.answer.Answer;
+import com.example.category.Category;
+import com.example.comment.Comment;
 import com.example.user.SiteUser;
 
 import jakarta.persistence.CascadeType;
@@ -41,6 +43,9 @@ public class Question {
     
     private LocalDateTime modifyDate;
     
+    @Column(nullable = false)
+    private int views = 0;
+    
     @OneToMany(mappedBy = "question", cascade = CascadeType.REMOVE) 
     private List<Answer> answerList; 
     
@@ -49,5 +54,11 @@ public class Question {
     
     @ManyToMany
     Set<SiteUser> voter;
+    
+    @ManyToOne
+    private Category category;
+    
+    @OneToMany(mappedBy = "question")
+    private List<Comment> commentList;
     
 }

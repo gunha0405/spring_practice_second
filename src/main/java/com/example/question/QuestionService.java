@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.example.DataNotFoundException;
 import com.example.answer.Answer;
 import com.example.answer.AnswerRepository;
+import com.example.category.Category;
 import com.example.strategy.QuestionSearchManager;
 import com.example.user.SiteUser;
 import com.example.util.TenantContext;
@@ -25,6 +26,7 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -52,7 +54,7 @@ public class QuestionService {
     }
     
 
-    public void create(String subject, String content, String value, SiteUser user) {
+    public void create(String subject, String content, String value, SiteUser user, Category category) {
         String tenant = Optional.ofNullable(TenantContext.get())
                                 .orElseThrow(() -> new IllegalStateException("No tenant"));
 
@@ -60,6 +62,7 @@ public class QuestionService {
         q.setSubject(subject);
         q.setContent(content);
         q.setAuthor(user);
+        q.setCategory(category);
         q.setCreateDate(LocalDateTime.now());
 
         if ("A".equalsIgnoreCase(tenant)) {
@@ -75,17 +78,37 @@ public class QuestionService {
         this.questionRepository.save(q);
     }
     
-    public Page<Question> getList(int page, String kw) {
-        List<Sort.Order> sorts = new ArrayList<>();
-        sorts.add(Sort.Order.desc("createDate"));
-        Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
-        return this.questionRepository.findAllByKeyword(kw, pageable);
+    public Page<Question> getList(int page, String kw, String filter) {
+        Pageable pageable = PageRequest.of(page, 10);
+
+        if ("answer".equals(filter)) {
+            return questionRepository.findQuestionsOrderByLatestAnswer(pageable);
+        } else if ("comment".equals(filter)) {
+            return questionRepository.findQuestionsOrderByLatestComment(pageable);
+        } else {
+            return questionRepository.findByKeyword(kw, pageable);
+        }
     }
     
-    public void modify(Question question, String subject, String content) {
+    public void modify(Question question, String subject, String content, String value, Category category) {
+        String tenant = Optional.ofNullable(TenantContext.get())
+                                .orElseThrow(() -> new IllegalStateException("No tenant"));
+
         question.setSubject(subject);
         question.setContent(content);
+        question.setCategory(category);
         question.setModifyDate(LocalDateTime.now());
+
+        if ("A".equalsIgnoreCase(tenant)) {
+            question.setKeyword(value);
+            question.setHashtag(null);
+        } else if ("B".equalsIgnoreCase(tenant)) {
+            question.setHashtag(value);
+            question.setKeyword(null);
+        } else {
+            throw new IllegalStateException("Unsupported tenant: " + tenant);
+        }
+
         this.questionRepository.save(question);
     }
     
@@ -101,6 +124,18 @@ public class QuestionService {
     public Page<Question> search(int page, String subject, String value) {
         Page<Question> paging = manager.findByUserInput(page, subject, value);
         return paging;
+    }
+    
+    public List<Question> getUserQuestions(SiteUser user) {
+        return questionRepository.findByAuthor(user);
+    }
+    
+    @Transactional
+    public void increaseViewCount(Integer id) {
+        Question q = questionRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("question not found"));
+        q.setViews(q.getViews() + 1);
+        questionRepository.save(q);
     }
     
 }
