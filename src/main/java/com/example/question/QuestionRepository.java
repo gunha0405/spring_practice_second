@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.example.user.SiteUser;
+
 public interface QuestionRepository extends JpaRepository<Question, Integer>{
 	Question findBySubject(String subject);
 	Question findBySubjectAndContent(String subject, String content);
@@ -32,5 +34,7 @@ public interface QuestionRepository extends JpaRepository<Question, Integer>{
     Page<Question> findBySubjectAndKeyword(String subject, String keyword, Pageable pageable);
     
     Page<Question> findBySubjectOrHashtag(String subject, String hashtag, Pageable pageable);
+    
+	List<Question> findByAuthor(SiteUser user);
 	
 }

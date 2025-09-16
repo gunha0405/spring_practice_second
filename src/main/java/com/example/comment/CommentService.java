@@ -1,6 +1,7 @@
 package com.example.comment;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,5 +52,9 @@ public class CommentService {
     /* 댓글 삭제 */
     public void delete(Comment c) {
         this.commentRepository.delete(c);
+    }
+    
+    public List<Comment> getUserComments(SiteUser user) {
+        return commentRepository.findByAuthor(user);
     }
 }

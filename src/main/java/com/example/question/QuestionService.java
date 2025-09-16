@@ -103,4 +103,8 @@ public class QuestionService {
         return paging;
     }
     
+    public List<Question> getUserQuestions(SiteUser user) {
+        return questionRepository.findByAuthor(user);
+    }
+    
 }
