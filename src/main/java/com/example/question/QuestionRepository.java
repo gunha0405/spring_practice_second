@@ -21,7 +21,7 @@ public interface QuestionRepository extends JpaRepository<Question, Integer>{
 		    SELECT q FROM Question q
 		    WHERE q.subject LIKE %:kw% OR q.content LIKE %:kw%
 		    ORDER BY q.createDate DESC
-		""")      
+		""")
     Page<Question> findByKeyword(@Param("kw") String kw, Pageable pageable);
 
     @Query("""

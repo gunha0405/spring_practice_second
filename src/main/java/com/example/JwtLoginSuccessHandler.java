@@ -15,20 +15,43 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 @Component
 @RequiredArgsConstructor
 public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
-	private final JwtUtil jwtUtil;
-	private final UserRepository userRepository;
-	
-	@Override
-	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication) throws IOException, ServletException {
+    private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
-		String username = authentication.getName();
-        SiteUser user = userRepository.findByusername(username).orElseThrow();
+    @Override
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+                                        Authentication authentication) throws IOException, ServletException {
+
+        SiteUser user = null;
+
+        if (authentication.getPrincipal() instanceof org.springframework.security.oauth2.core.user.OAuth2User oAuth2User) {
+            String email = oAuth2User.getAttribute("email");
+            String name = oAuth2User.getAttribute("name");
+            String providerId = oAuth2User.getAttribute("sub");
+
+            user = userRepository.findByEmail(email).orElse(null);
+
+            if (user == null) {
+                user = SiteUser.builder()
+                        .email(email)
+                        .username(name)
+                        .provider("GOOGLE")
+                        .providerId(providerId)
+                        .build();
+                userRepository.save(user);
+            }
+        } else {
+            String username = authentication.getName();
+            user = userRepository.findByusername(username)
+                    .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다: " + username));
+        }
+
         String token = jwtUtil.generateToken(user);
 
         Cookie cookie = new Cookie("ACCESS_TOKEN", token);
@@ -37,8 +60,8 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
         response.addCookie(cookie);
 
         response.sendRedirect("/");
-		
-	}
-	
-	
+    }
+
+
+
 }

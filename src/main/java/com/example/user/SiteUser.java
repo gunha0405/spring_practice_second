@@ -5,13 +5,18 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
+@Builder
+@RequiredArgsConstructor
+@AllArgsConstructor
 public class SiteUser {
 
     @Id
@@ -28,4 +33,8 @@ public class SiteUser {
     
     // 고객사 식별을 위한 필드
     private String customerId;
+    
+    private String provider; 
+    
+    private String providerId;
 }
