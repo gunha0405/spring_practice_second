@@ -37,4 +37,5 @@ public class SiteUser {
     private String provider; 
     
     private String providerId;
+
 }

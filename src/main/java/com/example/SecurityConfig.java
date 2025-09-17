@@ -17,6 +17,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import com.example.user.CustomOAuth2UserService;
 import com.example.util.JwtFilter;
 
+import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -54,9 +55,16 @@ public class SecurityConfig {
                 .successHandler(jwtLoginSuccessHandler)
          )
         .logout(logout -> logout
-            .logoutRequestMatcher(new AntPathRequestMatcher("/user/logout"))
-            .logoutSuccessUrl("/")
-            .invalidateHttpSession(true)
+        	    .logoutRequestMatcher(new AntPathRequestMatcher("/user/logout"))
+        	    .logoutSuccessHandler((request, response, authentication) -> {
+        	        Cookie cookie = new Cookie("ACCESS_TOKEN", null);
+        	        cookie.setMaxAge(0);    
+        	        cookie.setPath("/");     
+        	        response.addCookie(cookie);
+
+        	        response.sendRedirect("/"); 
+        	    })
+        	    .invalidateHttpSession(true)
         );
 
     	http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
