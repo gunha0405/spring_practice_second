@@ -43,6 +43,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
                         .username(name)
                         .provider("GOOGLE")
                         .providerId(providerId)
+                        .customerId("a")
                         .build();
                 userRepository.save(user);
             }

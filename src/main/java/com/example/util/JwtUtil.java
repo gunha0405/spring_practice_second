@@ -20,16 +20,18 @@ public class JwtUtil {
 	private final long expire = 1000 * 60 * 60;
 	
 	public String generateToken(SiteUser user) {
-        Date now = new Date();
-        Date exp = new Date(now.getTime() + expire);
-        return Jwts.builder()
-            .setSubject(user.getUsername())
-            .claim("tenant", user.getCustomerId())
-            .claim("roles", List.of("USER"))
-            .setIssuedAt(now).setExpiration(exp)
-            .signWith(Keys.hmacShaKeyFor(secret.getBytes()), SignatureAlgorithm.HS256)
-            .compact();
-    }
+	    Date now = new Date();
+	    Date exp = new Date(now.getTime() + expire);
+	    return Jwts.builder()
+	        .setSubject(user.getUsername())
+	        .claim("tenant", user.getCustomerId())
+	        .claim("roles", List.of("USER"))
+	        .setIssuedAt(now).setExpiration(exp)
+	        .signWith(Keys.hmacShaKeyFor(secret.getBytes()), SignatureAlgorithm.HS256)
+	        .compact();
+	}
+
+
 	
 	public Jws<Claims> parse(String token) {
         return Jwts.parserBuilder()
